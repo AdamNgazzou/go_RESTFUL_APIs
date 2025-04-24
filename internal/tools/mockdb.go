@@ -8,10 +8,11 @@ type mockDB struct{}
 
 // GetUserCoins implements DatabaseInterface.
 func (d *mockDB) GetUserCoins(username string) *CoinDetails {
-	return &CoinDetails{
-		Coins:    1000,
-		Username: username, // or any mock value
+	coinData, ok := mockCoinDetails[username]
+	if !ok {
+		return nil
 	}
+	return &coinData
 }
 
 var mockLoginDetails = map[string]LoginDetails{
