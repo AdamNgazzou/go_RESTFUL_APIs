@@ -1,6 +1,6 @@
 package middleware
 
-import(
+import (
 	"errors"
 	"net/http"
 
@@ -12,16 +12,33 @@ import(
 var unAuthorizedError = errors.New("Invalid username or token.")
 
 func Authorization(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request){
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
 		var username string = r.URL.Query().Get("username")
 		var token = r.Header.Get("Authorization")
-		var err error 
+		var err error
 
-		if(username == "" || token == ""){
+		if username == "" || token == "" {
 			log.Error(unAuthorizedError)
-			api.RequestErrorHandler(w, unAuthorizedError)
+			api.RequestErrorHandler(w, r)
 			return
-		}	
+		}
+
+		var database *tools.DatabaseInterface
+		database, err = tools.NewDatabase()
+		if err != nil {
+			api.InternalErrorHandler(w, r)
+			return
+		}
+		var loginDetails *tools.LoginDetails
+		loginDetails = (*database).GetUserLoginDetails(username)
+
+		if loginDetails == nil || (token != (*loginDetails).AuthToken) {
+			log.Error(unAuthorizedError)
+			api.RequestErrorHandler(w, r)
+			return
+		}
+
+		next.ServeHTTP(w, r)
 	})
 }

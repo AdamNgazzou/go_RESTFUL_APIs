@@ -6,7 +6,7 @@ import (
 )
 
 // Coin Balance Params
-type CoinBalanceParamas struct {
+type CoinBalanceParams struct {
 	Username string
 }
 
@@ -22,16 +22,16 @@ type CoinBalanceResponse struct {
 // Error response
 type Error struct {
 	// error Code
-	code int
+	Code int
 
 	//Error message
-	message string
+	Message string
 }
 
 func writeError(w http.ResponseWriter, message string, code int) {
 	resp := Error{
-		code:    code,
-		message: message,
+		Code:    code,
+		Message: message,
 	}
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(code)
@@ -41,7 +41,7 @@ func writeError(w http.ResponseWriter, message string, code int) {
 
 var (
 	RequestErrorHandler = func(w http.ResponseWriter, r *http.Request) {
-		writeError(w, http.StatusBadRequest)
+		writeError(w, "Invalid request", http.StatusBadRequest)
 	}
 	InternalErrorHandler = func(w http.ResponseWriter, r *http.Request) {
 		writeError(w, "An Unexpected Error Occured", http.StatusInternalServerError)
